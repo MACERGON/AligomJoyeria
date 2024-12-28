@@ -1,17 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { fetchHomeData } from '../services/api';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
-    const [message, setMessage] = useState('');
-
-    useEffect(() => {
-        fetchHomeData().then((response) => setMessage(response.data));
-    }, []);
-
     return (
         <div>
             <h1>Bienvenido a Aligom</h1>
-            <p>{message}</p>
+            <p>Explora nuestra joyería de chapa de oro y acero inoxidable.</p>
+            <Link to="/catalog">Ver Catálogo</Link>
         </div>
     );
 };
