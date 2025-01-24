@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const AddProduct = () => {
-  const [name, setName] = useState('');
-  const [price, setPrice] = useState('');
-  const [category, setCategory] = useState('');
-  const [imageFile, setImageFile] = useState(null);
+  const [idCategoria, setIdCategoria] = useState(''); // ID de categoría
+  const [nombre, setNombre] = useState(''); // Nombre del producto
+  const [descripcion, setDescripcion] = useState(''); // Descripción
+  const [precio, setPrecio] = useState(''); // Precio
+  const [sku, setSku] = useState(''); // SKU
+  const [imageFile, setImageFile] = useState(null); // Archivo de imagen
 
   const handleImageChange = (e) => {
     setImageFile(e.target.files[0]);
@@ -15,22 +17,24 @@ const AddProduct = () => {
     e.preventDefault();
 
     // Validar datos mínimos
-    if (!imageFile) {
-      alert('Por favor, selecciona una imagen');
+    if (!idCategoria || !nombre || !precio || !imageFile) {
+      alert('Por favor, completa todos los campos obligatorios');
       return;
     }
 
     try {
       // Crear un FormData con los campos y el archivo
       const formData = new FormData();
+      formData.append('id_categoria', idCategoria);
+      formData.append('nombre', nombre);
+      formData.append('descripcion', descripcion || 'Sin descripción'); // Valor por defecto si no se llena
+      formData.append('precio', precio);
+      formData.append('sku', sku || `SKU-${Date.now()}`); // Genera un SKU único si no se proporciona
       formData.append('image', imageFile);
-      formData.append('name', name);
-      formData.append('price', price);
-      formData.append('category', category);
 
       // Enviar al backend
       const response = await axios.post(
-        'http://localhost:5001/add-product', // Ajusta la URL según tu servidor
+        'http://localhost:5001/AddProduct', // Asegúrate de que esta ruta coincida con tu backend
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -38,9 +42,11 @@ const AddProduct = () => {
       alert(response.data.message || 'Producto agregado correctamente');
 
       // Resetear formulario si quieres
-      setName('');
-      setPrice('');
-      setCategory('');
+      setIdCategoria('');
+      setNombre('');
+      setDescripcion('');
+      setPrecio('');
+      setSku('');
       setImageFile(null);
 
     } catch (error) {
@@ -52,11 +58,30 @@ const AddProduct = () => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Nombre del producto:</label>
+        <label>ID de Categoría:</label>
+        <input
+          type="number"
+          value={idCategoria}
+          onChange={(e) => setIdCategoria(e.target.value)}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Nombre del Producto:</label>
         <input
           type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          required
+        />
+      </div>
+
+      <div>
+        <label>Descripción:</label>
+        <textarea
+          value={descripcion}
+          onChange={(e) => setDescripcion(e.target.value)}
         />
       </div>
 
@@ -64,23 +89,25 @@ const AddProduct = () => {
         <label>Precio:</label>
         <input
           type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          step="0.01"
+          value={precio}
+          onChange={(e) => setPrecio(e.target.value)}
+          required
         />
       </div>
 
       <div>
-        <label>Categoría:</label>
+        <label>SKU:</label>
         <input
           type="text"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          value={sku}
+          onChange={(e) => setSku(e.target.value)}
         />
       </div>
 
       <div>
         <label>Imagen:</label>
-        <input type="file" accept="image/*" onChange={handleImageChange} />
+        <input type="file" accept="image/*" onChange={handleImageChange} required />
       </div>
 
       <button type="submit">Agregar Producto</button>
